@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: nub-db
           property: connectionString
+      - key: DB_HOST_SUFFIX
+        value: .oregon-postgres.render.com
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHON_VERSION

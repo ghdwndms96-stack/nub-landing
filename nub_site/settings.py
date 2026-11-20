@@ -51,6 +51,12 @@ WSGI_APPLICATION = "nub_site.wsgi.application"
 # Render에서는 DATABASE_URL(Postgres)을, 내 컴퓨터에서는 SQLite를 씀
 DATABASES = {"default": dj_database_url.config(
     default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
+# DB와 웹 서버가 다른 지역에 있으면 내부 주소가 안 통하므로 외부 주소(SSL)로 접속
+_suffix = os.environ.get("DB_HOST_SUFFIX", "")
+_db = DATABASES["default"]
+if _suffix and _db.get("HOST") and "." not in _db["HOST"]:
+    _db["HOST"] += _suffix
+    _db.setdefault("OPTIONS", {})["sslmode"] = "require"
 
 LANGUAGE_CODE = "ko-kr"
 TIME_ZONE = "Asia/Seoul"
