@@ -49,8 +49,10 @@ TEMPLATES = [{
 WSGI_APPLICATION = "nub_site.wsgi.application"
 
 # Render에서는 DATABASE_URL(Postgres)을, 내 컴퓨터에서는 SQLite를 씀
-DATABASES = {"default": dj_database_url.config(
-    default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
+# NEON_DATABASE_URL(무료 Neon DB)이 있으면 그걸 먼저 쓰고, 없으면 Render DB(DATABASE_URL)를 씀
+_url = os.environ.get("NEON_DATABASE_URL") or os.environ.get("DATABASE_URL") \
+    or f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+DATABASES = {"default": dj_database_url.parse(_url, conn_max_age=600, conn_health_checks=True)}
 # DB와 웹 서버가 다른 지역에 있으면 내부 주소가 안 통하므로 외부 주소(SSL)로 접속
 _suffix = os.environ.get("DB_HOST_SUFFIX", "")
 _db = DATABASES["default"]
