@@ -1,0 +1,291 @@
+{% load static %}<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>눕 NUB · 나눕오와 제주 프렌즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 다정하고 느린, 손으로 만지는 제주 이야기
+   IDEA: 가방에 달린 비건가죽 키링 태그 — 박음질 선, 각인, 구멍 고리
+   PICTURE: 스티치 두른 가죽 태그 위 나눕오 얼굴 + NFC 물결
+   COLOUR and TYPE: 나눕오 몸색 #C07E7F 지배, 크림 #FAF3E8 바탕, 귤빛 #FBCA6B 포인트 / Jua + Gowun Dodum
+   LAYOUT: 모바일 한 칼럼 — 태그 히어로 → 소개 → 영상 → 소통창 */
+:root{color-scheme:light dark;
+  --bg:light-dark(#FAF3E8,#1d1513);--ink:light-dark(#231815,#f6ece2);--soft:light-dark(#6b5650,#c9b5ad);
+  --leather:#C07E7F;--leather-d:#9c5f60;--card:light-dark(#fffaf3,#2a201d);--line:light-dark(#e6d6c6,#3d302c);
+  --citrus:#FBCA6B;--cheek:#F2B5B3}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400;line-height:1.1;text-wrap:balance;margin:0}
+.band{padding:clamp(28px,5vw,56px) max(5vw,18px)}
+.wrap{max-width:720px;margin:0 auto}
+a{color:inherit}
+/* hero */
+.hero{background:var(--leather);color:#FAF3E8;padding-bottom:0;position:relative}
+.hero .wrap{display:grid;gap:18px;justify-items:center;text-align:center}
+.brand{font-family:Jua;font-size:15px;opacity:.85}
+.hero h1{font-size:clamp(32px,8vw,48px)}
+.hero p{margin:0;max-width:30em;opacity:.92}
+.tag{width:min(300px,78vw);margin-top:6px;filter:drop-shadow(0 14px 18px rgba(35,24,21,.28))}
+.waves path{animation:pulse 2.4s ease-in-out infinite}.waves path:nth-child(2){animation-delay:.3s}.waves path:nth-child(3){animation-delay:.6s}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.waves path{animation:none;opacity:.8}}
+.scallop{display:block;width:100%;height:28px;margin-top:-1px;color:var(--leather)}
+nav.jump{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+nav.jump a{background:rgba(250,243,232,.16);border:1px solid rgba(250,243,232,.45);border-radius:999px;padding:9px 16px;text-decoration:none;font-size:15px;min-height:44px;display:inline-flex;align-items:center}
+nav.jump a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--citrus);outline-offset:2px}
+/* sections */
+h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
+.lead{font-size:17px}
+.motto{margin:22px 0;padding:18px 20px;border:2px dashed var(--leather);border-radius:16px;font-family:Jua;font-size:clamp(20px,4.6vw,24px);text-align:center;color:var(--leather-d)}
+:root[data-theme=dark] .motto{color:var(--cheek)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .motto{color:var(--cheek)}}
+.vals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.vals div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.vals b{font-family:Jua;font-weight:400;font-size:18px;display:block}
+.vals span{font-size:14px;color:var(--soft)}
+@media(max-width:600px){.vals{grid-template-columns:minmax(0,1fr)}}
+/* friends picker */
+.friends{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:thin}
+.friend{flex:none;display:grid;justify-items:center;gap:6px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:6px;border-radius:14px;min-width:72px}
+.friend img{width:64px;height:64px;object-fit:contain;padding:6px;background:#FAF3E8;border-radius:50%;box-shadow:0 0 0 3px transparent;transition:box-shadow .2s,transform .2s}
+.friend[aria-pressed=true] img{box-shadow:0 0 0 3px var(--leather);transform:translateY(-3px)}
+.group{display:block;width:min(560px,100%);height:auto;margin:6px auto 18px}
+.screen .empty img{width:110px;height:110px;object-fit:contain}
+.fact{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center}.fact img{width:64px;height:64px;object-fit:contain}
+.friend span{font-size:14px}
+.player{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.screen{aspect-ratio:16/9;background:#231815;display:grid;place-items:center;color:#FAF3E8;text-align:center;position:relative}
+.screen video,.screen iframe{width:100%;height:100%;display:block;border:0;position:absolute;inset:0}
+.screen .empty{display:grid;gap:8px;justify-items:center;padding:20px}
+.screen .empty b{font-family:Jua;font-weight:400;font-size:22px}
+.meta{padding:16px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.meta h3{font-size:22px}
+.meta .sp{font-size:14px;color:var(--soft)}
+.chip{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #231815;flex:none}
+.btn{background:var(--leather);color:#FAF3E8;border:0;border-radius:12px;padding:0 18px;min-height:44px;font:inherit;font-size:16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+/* community */
+.comm{background:light-dark(#f3e6da,#251c19)}
+form.post{display:grid;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input,textarea,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:44px}
+textarea{resize:vertical;min-height:84px;width:100%}
+input[name=nick]{flex:1 1 160px}
+select{flex:0 1 auto}
+.note{font-size:13px;color:var(--soft)}
+.step{font-family:Jua;font-size:18px;display:flex;gap:8px;align-items:center;margin-top:6px}
+.step span{width:26px;height:26px;border-radius:50%;background:var(--leather);color:#FAF3E8;display:grid;place-items:center;font-size:14px;flex:none}
+.fact{background:light-dark(#fff4dc,#33291f);border-radius:14px;padding:12px 14px;font-size:15px;border-left:0}
+.fact b{font-family:Jua;font-weight:400;display:block;font-size:16px;margin-bottom:2px}
+.pledges{display:flex;flex-wrap:wrap;gap:8px}
+.pledges button{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;font:inherit;font-size:15px;cursor:pointer;text-align:start}
+.pledges button[aria-checked=true]{background:var(--leather);border-color:var(--leather);color:#FAF3E8}
+.tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 14px}
+.tally div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:8px;align-items:center;font-size:14px}
+.tally b{font-family:Jua;font-weight:400;font-size:20px;margin-left:auto}
+@media(max-width:600px){.tally{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.promise{font-size:14px;background:light-dark(#f6e9e0,#33251f);border-radius:10px;padding:6px 10px;justify-self:start}
+.feed{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.feed li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:4px}
+.feed .who{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--soft)}
+.feed .who b{color:var(--ink);font-weight:400;font-family:Jua;font-size:16px}
+.feed p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.feed .del{margin-left:auto;background:none;border:0;color:var(--soft);font:inherit;font-size:13px;cursor:pointer;min-height:32px}
+.empty-feed{text-align:center;color:var(--soft);padding:22px;border:1px dashed var(--line);border-radius:16px;margin-top:16px}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.filter button{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:0 14px;min-height:40px;font:inherit;font-size:14px;cursor:pointer}
+.filter button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+footer{background:#231815;color:#e9dccf;text-align:center;font-size:14px}
+footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:block;margin-bottom:4px}
+</style>
+</head>
+<body>
+<header class="band hero">
+  <div class="wrap">
+    <div class="brand">NUB 눕 · Nature · Union · Better</div>
+    <h1 id="heroTitle">반가워요, 나눕오예요</h1>
+    <p id="heroSub">방금 태그한 키링은 제주 감귤 껍질과 선인장 부산물로 만든 비건가죽이에요.</p>
+    <svg class="tag" viewBox="0 0 300 330" role="img" aria-label="비건가죽 키링 태그">
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d49393"/><stop offset="1" stop-color="#a86466"/></linearGradient></defs>
+      <circle cx="150" cy="24" r="20" fill="none" stroke="#e8d3b8" stroke-width="7"/>
+      <path d="M60 60 Q60 40 80 40 H220 Q240 40 240 60 V280 Q240 310 210 310 H90 Q60 310 60 280Z" fill="url(#lg)"/>
+      <path d="M72 66 Q72 52 86 52 H214 Q228 52 228 66 V276 Q228 298 206 298 H94 Q72 298 72 276Z" fill="none" stroke="#FAF3E8" stroke-width="2.5" stroke-dasharray="7 6" opacity=".8"/>
+      <circle cx="150" cy="66" r="9" fill="#FAF3E8" opacity=".9"/>
+      <circle cx="150" cy="170" r="78" fill="#FAF3E8" opacity=".95"/><image id="faceImg" href="{% static 'landing/img/nanubo.webp' %}" x="88" y="96" width="124" height="150" preserveAspectRatio="xMidYMid meet"/>
+      <g class="waves" fill="none" stroke="#FAF3E8" stroke-width="4" stroke-linecap="round">
+        <path d="M252 140 q14 18 0 36"/><path d="M266 128 q24 30 0 60"/><path d="M280 116 q34 42 0 84"/>
+      </g>
+      <text x="150" y="278" text-anchor="middle" font-family="Jua" font-size="18" fill="#FAF3E8" opacity=".85">NUB · JEJU</text>
+    </svg>
+    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#community">소통창</a></nav>
+  </div>
+</header>
+<svg class="scallop" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H100V2 Q95 10 90 2 Q85 10 80 2 Q75 10 70 2 Q65 10 60 2 Q55 10 50 2 Q45 10 40 2 Q35 10 30 2 Q25 10 20 2 Q15 10 10 2 Q5 10 0 2Z" fill="currentColor"/></svg>
+
+<section class="band" id="about">
+  <div class="wrap">
+    <img class="group" src="{% static 'landing/img/group.webp' %}" alt="나눕오와 제주 프렌즈 여섯 친구" width="900" height="633">
+    <h2>눕은 이렇게 시작됐어요</h2>
+    <p class="lead">아이들과 환경교육을 하던 교실에서, 환경을 가르치는 교구가 한 학기만 쓰고 버려지는 모습을 봤어요. 오래 쓰고 정이 드는 소재를 찾다가 제주 밭과 과수원에서 해마다 버려지는 감귤 껍질과 선인장을 만났고, 그렇게 눕이 생겼어요.</p>
+    <div class="motto">버려지는 것으로 사라지는 것을 배운다</div>
+    <p>느릿느릿 나무늘보 <b>나눕오</b>와 제주 프렌즈 <b>핀·구르방·세오·비비·몽이</b>가 조용히 줄어들고 있는 제주 토종 생물들의 이야기를 대신 전해요. 손에 쥔 가죽의 촉감과 화면 속 친구들이 하나로 이어지는 경험, 그게 눕이 만들고 싶은 배움이에요.</p>
+    <div class="vals">
+      <div><b>순환</b><span>버려지는 제주 부산물을 다시 원료로</span></div>
+      <div><b>로컬리티</b><span>소재도, 주인공도 제주에서</span></div>
+      <div><b>촉감 있는 배움</b><span>만지고 만나며 가까이 느끼기</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="video" style="padding-top:0">
+  <div class="wrap">
+    <h2>친구를 만나 볼까요</h2>
+    <div class="friends" id="friends" role="group" aria-label="캐릭터 선택"></div>
+    <div class="player">
+      <div class="screen" id="screen"></div>
+      <div class="meta"><span class="chip" id="chip"></span><div><h3 id="vName"></h3><div class="sp" id="vSp"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band comm" id="community">
+  <div class="wrap">
+    <h2>제주 친구들에게 응원 보내기</h2>
+    <p>친구에 대해 하나 알아보고, 친구를 지키는 약속 하나와 응원 한마디를 남겨 주세요.</p>
+    <div class="tally" id="tally"></div>
+    <form class="post" style="position:relative" id="form" autocomplete="off">
+      <label class="step"><span>1</span>누구에게 보낼까요?</label>
+      <select name="who" id="who" aria-label="응원할 친구"></select>
+      <div class="fact" id="fact"></div>
+      <div class="step"><span>2</span>나의 실천 약속</div>
+      <div class="pledges" id="pledges" role="radiogroup" aria-label="실천 약속"></div>
+      <input id="ownPledge" maxlength="40" placeholder="직접 약속 쓰기 (선택)" aria-label="직접 쓰는 약속">
+      <div class="step"><span>3</span>응원 한마디</div>
+      <textarea name="msg" id="msg" maxlength="300" placeholder="예) 핀아, 바다가 깨끗해지도록 나도 도울게!" aria-label="응원 메시지"></textarea>
+      <input name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+      <input name="nick" id="nick" maxlength="16" placeholder="닉네임" aria-label="닉네임">
+      <div class="row" style="align-items:center;justify-content:space-between">
+        <span class="note" id="status">불러오는 중…</span>
+        <button class="btn" id="send" type="submit" disabled>남기기</button>
+      </div>
+    </form>
+    <div class="filter" id="filter" role="group" aria-label="친구별 보기"></div>
+    <ul class="feed" id="feed"></ul>
+  </div>
+</section>
+
+<footer class="band">
+  <b>NUB 눕</b>
+  제주 농업 부산물로 만든 비건가죽 · 나눕오와 제주 프렌즈
+</footer>
+
+<script>
+{
+const IMG="{% static 'landing/img/' %}",API="{% url 'posts' %}";
+/* ▼ 영상 연결: 각 친구의 yt:"" 따옴표 안에 유튜브 링크를 붙여 넣으세요 (예: yt:"https://youtu.be/abcdEFGhijk") */
+const F=[
+ {id:"nanubo",name:"나눕오",sp:"나무늘보 · 눕의 대표 캐릭터",body:"#C07E7F",face:"#FAF3E8",yt:"",src:"",url:"",
+  fact:"나무늘보는 하루 대부분을 나무에 매달려 쉬면서 에너지를 아껴요. 나눕오는 천천히, 아껴 쓰는 삶을 알려 줘요.",
+  pledges:["물건을 오래오래 아껴 쓸게","먹을 만큼만 담아 남기지 않을게","가까운 길은 천천히 걸어갈게"]},
+ {id:"pin",name:"핀",sp:"남방큰돌고래",body:"#AEE3F1",face:"#FEFEFE",yt:"",src:"",url:"",
+  fact:"남방큰돌고래는 제주 바닷가 가까이에 사는 돌고래예요. 버려진 낚싯줄과 그물에 다치기도 해서 해양보호생물로 지정돼 있어요.",
+  pledges:["바닷가에서 쓰레기를 주울게","돌고래를 쫓아가는 배는 타지 않을게","일회용 플라스틱을 줄일게"]},
+ {id:"gurbang",name:"구르방",sp:"바다거북",body:"#6C974D",face:"#B4D89A",yt:"",src:"",url:"",
+  fact:"바다거북은 바다에 떠다니는 비닐을 해파리로 착각해 삼키기도 해요. 우리가 버린 쓰레기가 거북이에게는 위험한 먹이가 돼요.",
+  pledges:["비닐봉지 대신 장바구니를 쓸게","빨대 없이 마셔 볼게","바다에 가면 내 쓰레기는 꼭 가져올게"]},
+ {id:"seo",name:"세오",sp:"뿔쇠오리",body:"#585858",face:"#FEFEFE",yt:"",src:"",url:"",
+  fact:"뿔쇠오리는 사람이 잘 가지 않는 제주 바위섬 틈에 알을 낳는 바닷새예요. 수가 아주 적어서 멸종위기 야생생물로 보호받고 있어요.",
+  pledges:["새를 만나면 멀리서 조용히 지켜볼게","바위섬과 무인도에 함부로 들어가지 않을게","세오 이야기를 친구에게 알려 줄게"]},
+ {id:"bibi",name:"비비",sp:"비바리뱀",body:"#FAC679",face:"#9A6F67",yt:"",src:"",url:"",
+  fact:"비바리뱀은 우리나라에서는 제주 중산간 풀밭에서만 볼 수 있는 작은 뱀이에요. 풀밭이 개발되면서 살 곳이 줄고 있어요.",
+  pledges:["오름에서는 정해진 길로만 다닐게","뱀을 만나도 해치지 않고 비켜 갈게","풀밭에 쓰레기를 남기지 않을게"]},
+ {id:"mong",name:"몽이",sp:"제주마",body:"#E3C4A0",face:"#FAF0E4",yt:"",src:"",url:"",
+  fact:"제주마는 아주 오래전부터 제주에서 살아온 토종 말이에요. 천연기념물로 지정돼 보호받고 있어요.",
+  pledges:["말에게 함부로 먹이를 주지 않을게","말을 만나면 놀라지 않게 조용히 지나갈게","제주마 이야기를 친구에게 알려 줄게"]}
+];
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const byId=id=>F.find(f=>f.id===id)||F[0];
+const faceSvg=(f,r)=>`<circle r="${r}" fill="${f.body}" stroke="#231815" stroke-width="${r/14}"/><ellipse cy="${r*.12}" rx="${r*.68}" ry="${r*.56}" fill="${f.face}"/><circle cx="${-r*.28}" cy="${r*.02}" r="${r*.08}" fill="#231815"/><circle cx="${r*.28}" cy="${r*.02}" r="${r*.08}" fill="#231815"/><circle cx="${-r*.25}" cy="${-r*.01}" r="${r*.03}" fill="#fff"/><circle cx="${r*.31}" cy="${-r*.01}" r="${r*.03}" fill="#fff"/><path d="M${-r*.62} ${r*.2} a${r*.07} ${r*.07} 0 0 1 ${r*.14} 0 a${r*.07} ${r*.07} 0 0 1 ${r*.14} 0 q0 ${r*.1} -${r*.14} ${r*.18} q-${r*.14} -${r*.08} -${r*.14} -${r*.18}z" fill="#F2B5B3"/><path d="M${r*.34} ${r*.2} a${r*.07} ${r*.07} 0 0 1 ${r*.14} 0 a${r*.07} ${r*.07} 0 0 1 ${r*.14} 0 q0 ${r*.1} -${r*.14} ${r*.18} q-${r*.14} -${r*.08} -${r*.14} -${r*.18}z" fill="#F2B5B3"/><path d="M${-r*.12} ${r*.3} q${r*.12} ${r*.12} ${r*.24} 0" fill="none" stroke="#231815" stroke-width="${r/16}" stroke-linecap="round"/>`;
+
+let cur="nanubo",pledge="";
+function ytId(u){if(!u)return"";const m=String(u).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:(/^[\w-]{11}$/.test(u)?u:"")}
+function setWho(id){
+  const f=byId(id);$("#who").value=f.id;pledge="";
+  $("#fact").innerHTML=`<img src="${IMG}${f.id}.webp" alt=""><div><b>알고 있었나요?</b>${esc(f.fact)}</div>`;
+  $("#pledges").innerHTML=f.pledges.map(p=>`<button type="button" role="radio" aria-checked="false" data-p="${esc(p)}">${esc(p)}</button>`).join("");
+  const n=$("#msg");n.placeholder=`예) ${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"아":"야"}, 나도 너를 지키는 데 함께할게!`;
+}
+$("#friends").innerHTML=F.map(f=>`<button class="friend" type="button" data-id="${f.id}" aria-pressed="false"><img src="${IMG}${f.id}.webp" alt=""><span>${f.name}</span></button>`).join("");
+$("#who").innerHTML=F.map(f=>`<option value="${f.id}">${f.name}</option>`).join("");
+
+function show(id,scroll){
+  const f=byId(id);cur=f.id;
+  document.querySelectorAll(".friend").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===f.id));
+  $("#faceImg").setAttribute("href",`${IMG}${f.id}.webp`);
+  $("#heroTitle").textContent=`반가워요, ${f.name}${/[가-힣]$/.test(f.name)&&((f.name.charCodeAt(f.name.length-1)-44032)%28)?"이에요":"예요"}`;
+  $("#vName").textContent=f.name;$("#vSp").textContent=f.sp;$("#chip").style.background=f.body;
+  setWho(f.id);
+  const s=$("#screen");
+  const yid=ytId(f.yt);
+  if(yid) s.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${yid}?rel=0&playsinline=1" title="${esc(f.name)} 영상" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  else if(f.src) s.innerHTML=`<video controls playsinline preload="metadata" src="${esc(f.src)}"></video>`;
+  else if(f.url) s.innerHTML=`<div class="empty"><img src="${IMG}${f.id}.webp" alt=""><b>${esc(f.name)} 영상 보기</b><a class="btn" href="${esc(f.url)}" target="_blank" rel="noopener">영상 열기</a></div>`;
+  else s.innerHTML=`<div class="empty"><img src="${IMG}${f.id}.webp" alt=""><b>${esc(f.name)} 영상 준비 중</b><span class="note" style="color:#e9dccf">곧 이곳에서 만날 수 있어요</span></div>`;
+  if(scroll) $("#video").scrollIntoView({behavior:"smooth"});
+}
+$("#friends").addEventListener("click",e=>{const b=e.target.closest(".friend");if(b){show(b.dataset.id);try{location.hash=b.dataset.id}catch(_){}}});
+function fromHash(){const h=location.hash.slice(1);if(F.some(f=>f.id===h))show(h);}
+show("nanubo");fromHash();
+addEventListener("hashchange",fromHash);
+
+/* 소통창 */
+let posts=[],counts={},filter="all",busy=false;
+try{const n=localStorage.getItem("nub-nick");if(n)$("#nick").value=n}catch(_){}
+$("#filter").innerHTML=`<button type="button" data-f="all" aria-pressed="true">전체</button>`+F.map(f=>`<button type="button" data-f="${f.id}" aria-pressed="false">${f.name}</button>`).join("");
+$("#filter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;filter=b.dataset.f;document.querySelectorAll("#filter button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+const ago=t=>{const m=Math.floor((Date.now()-t)/60000);if(m<1)return"방금";if(m<60)return m+"분 전";const h=Math.floor(m/60);if(h<24)return h+"시간 전";return Math.floor(h/24)+"일 전"};
+$("#who").addEventListener("change",e=>setWho(e.target.value));
+$("#pledges").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  const on=b.getAttribute("aria-checked")!=="true";
+  document.querySelectorAll("#pledges button").forEach(x=>x.setAttribute("aria-checked","false"));
+  b.setAttribute("aria-checked",on);pledge=on?b.dataset.p:"";if(on)$("#ownPledge").value=""});
+$("#ownPledge").addEventListener("input",e=>{if(e.target.value.trim()){pledge="";document.querySelectorAll("#pledges button").forEach(x=>x.setAttribute("aria-checked","false"))}});
+function render(){
+  $("#tally").innerHTML=F.map(f=>`<div><span class="chip" style="background:${f.body}"></span>${esc(f.name)}에게<b>${counts[f.id]||0}</b></div>`).join("");
+  const list=posts.filter(p=>filter==="all"||p.who===filter);
+  if(!list.length){$("#feed").innerHTML=`<li class="empty-feed">아직 남겨진 응원이 없어요. 첫 응원을 보내 주세요.</li>`;return}
+  $("#feed").innerHTML=list.map(p=>{const f=byId(p.who);return`<li><div class="who"><span class="chip" style="background:${f.body}"></span><b>${esc(p.nick||"익명")}</b><span>→ ${esc(f.name)}에게 · ${ago(p.t)}</span></div>${p.pledge?`<span class="promise">나의 약속 · ${esc(p.pledge)}</span>`:""}<p>${esc(p.msg)}</p></li>`}).join("");
+}
+const setStatus=t=>$("#status").textContent=t;
+const csrf=()=>(document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)||[])[1]||"";
+async function load(){
+  try{const r=await fetch(API);const d=await r.json();posts=d.posts||[];counts=d.counts||{};render();setStatus("따뜻한 말로 응원해 주세요")}
+  catch(_){render();setStatus("응원을 불러오지 못했어요. 새로고침해 주세요")}
+}
+render();load();$("#send").disabled=false;
+$("#form").addEventListener("submit",async e=>{
+  e.preventDefault();if(busy)return;
+  const msg=$("#msg").value.trim();const nick=$("#nick").value.trim().slice(0,16)||"익명";
+  const pl=($("#ownPledge").value.trim()||pledge).slice(0,40);
+  if(!pl){setStatus("친구를 지키는 약속을 하나 골라 주세요");return}
+  if(!msg){setStatus("응원 한마디를 적어 주세요");$("#msg").focus();return}
+  busy=true;$("#send").disabled=true;setStatus("보내는 중…");
+  try{localStorage.setItem("nub-nick",nick)}catch(_){}
+  try{
+    const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":csrf()},
+      body:JSON.stringify({nick,who:$("#who").value,pledge:pl,msg,website:$("#website").value})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){setStatus(d.error||"응원을 보내지 못했어요")}
+    else{$("#msg").value="";$("#ownPledge").value="";setWho($("#who").value);await load();setStatus("응원이 전해졌어요! 약속, 꼭 지켜 줘요")}
+  }catch(_){setStatus("응원을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요")}
+  busy=false;$("#send").disabled=false;
+});
+}
+</script>
+</body>
+</html>
