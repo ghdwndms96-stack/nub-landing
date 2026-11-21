@@ -8,5 +8,6 @@ admin.site.site_title = "눕 NUB"
 urlpatterns = [
     path("", views.index, name="index"),
     path("api/posts/", views.posts, name="posts"),
+    path("api/survey/", views.survey, name="survey"),
     path("admin/", admin.site.urls),
 ]

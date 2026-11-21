@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
-from .models import Post, FRIENDS
+from .models import Post, Survey, FRIENDS, PRICES, FOR_WHOM, WHO_AM
 
 WHO = {k for k, _ in FRIENDS}
 WAIT_SECONDS = 20  # 같은 사람이 연달아 도배하지 못하게
@@ -49,4 +49,27 @@ def posts(request):
         return JsonResponse({"error": "조금만 기다렸다가 다시 남겨 주세요"}, status=429)
     cache.set(key, 1, WAIT_SECONDS)
     Post.objects.create(nick=nick, who=who, pledge=pledge, msg=msg)
+    return JsonResponse({"ok": True}, status=201)
+
+
+@require_http_methods(["POST"])
+def survey(request):
+    try:
+        d = json.loads(request.body or b"{}")
+    except ValueError:
+        return JsonResponse({"error": "잘못된 요청이에요"}, status=400)
+    if d.get("website"):
+        return JsonResponse({"ok": True})
+    ok = lambda v, ch: str(v) in {k for k, _ in ch}
+    if not (ok(d.get("fav"), FRIENDS) and ok(d.get("price"), PRICES)
+            and ok(d.get("for_whom"), FOR_WHOM) and ok(d.get("who_am"), WHO_AM)):
+        return JsonResponse({"error": "1~4번 질문을 모두 골라 주세요"}, status=400)
+    key = "survey-wait:" + _client_ip(request)
+    if cache.get(key):
+        return JsonResponse({"error": "이미 응답해 주셨어요. 잠시 뒤 다시 시도해 주세요"}, status=429)
+    cache.set(key, 1, WAIT_SECONDS)
+    Survey.objects.create(fav=d["fav"], price=d["price"], for_whom=d["for_whom"], who_am=d["who_am"],
+                          major=str(d.get("major", "")).strip()[:40],
+                          kit_interest=bool(d.get("kit_interest")),
+                          comment=str(d.get("comment", "")).strip()[:300])
     return JsonResponse({"ok": True}, status=201)

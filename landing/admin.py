@@ -2,7 +2,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils import timezone
-from .models import Post
+from .models import Post, Survey
 
 
 @admin.action(description="선택한 응원 메시지를 엑셀(CSV)로 내려받기")
@@ -28,4 +28,29 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ("nick", "msg", "pledge")
     date_hierarchy = "created"
     actions = [export_csv]
+    list_per_page = 100
+
+
+@admin.action(description="선택한 설문 응답을 엑셀(CSV)로 내려받기")
+def export_survey_csv(modeladmin, request, queryset):
+    now = timezone.localtime().strftime("%Y%m%d-%H%M")
+    resp = HttpResponse(content_type="text/csv; charset=utf-8")
+    resp["Content-Disposition"] = f'attachment; filename="nub-survey-{now}.csv"'
+    resp.write("\ufeff")
+    w = csv.writer(resp)
+    w.writerow(["번호", "날짜", "시간", "응답자", "전공·직업", "마음에 드는 친구", "적정 가격", "누구를 위해", "교육키트 관심", "한마디"])
+    for s in queryset.order_by("created"):
+        t = timezone.localtime(s.created)
+        w.writerow([s.id, t.strftime("%Y-%m-%d"), t.strftime("%H:%M:%S"), s.get_who_am_display(), s.major,
+                    s.get_fav_display(), s.get_price_display(), s.get_for_whom_display(),
+                    "예" if s.kit_interest else "", s.comment])
+    return resp
+
+
+@admin.register(Survey)
+class SurveyAdmin(admin.ModelAdmin):
+    list_display = ("created", "who_am", "major", "fav", "price", "for_whom", "kit_interest", "comment")
+    list_filter = ("who_am", "fav", "price", "for_whom", "kit_interest", "created")
+    date_hierarchy = "created"
+    actions = [export_survey_csv]
     list_per_page = 100

@@ -99,6 +99,23 @@ select{flex:0 1 auto}
 .filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .filter button{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:0 14px;min-height:40px;font:inherit;font-size:14px;cursor:pointer}
 .filter button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+
+/* adult survey */
+.survey{background:#231815;color:#FAF3E8}
+.survey h2{color:#FAF3E8}
+.survey .lead2{color:#e9dccf;margin:0 0 18px}
+.survey form{display:grid;gap:18px;background:#2f2320;border:1px solid #4a3833;border-radius:20px;padding:18px}
+.q{display:grid;gap:10px}
+.q b{font-family:Jua;font-weight:400;font-size:19px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{background:transparent;border:1px solid #6b5650;color:#FAF3E8;border-radius:999px;padding:8px 14px;min-height:44px;font:inherit;font-size:15px;cursor:pointer}
+.opts button[aria-checked=true]{background:#FBCA6B;border-color:#FBCA6B;color:#231815}
+.survey input,.survey textarea{background:#231815;color:#FAF3E8;border-color:#6b5650;width:100%}
+.check{display:flex;gap:10px;align-items:center;font-size:15px;min-height:44px;cursor:pointer}
+.check input{width:22px;height:22px;min-height:0;accent-color:#FBCA6B}
+.survey .btn{background:#FBCA6B;color:#231815}
+.survey .note{color:#c9b5ad}
+.thanks{display:none;text-align:center;padding:26px 10px;font-family:Jua;font-size:22px}
 footer{background:#231815;color:#e9dccf;text-align:center;font-size:14px}
 footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:block;margin-bottom:4px}
 </style>
@@ -121,7 +138,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       </g>
       <text x="150" y="278" text-anchor="middle" font-family="Jua" font-size="18" fill="#FAF3E8" opacity=".85">NUB · JEJU</text>
     </svg>
-    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#community">소통창</a></nav>
+    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#community">소통창</a><a href="#survey">어른 설문</a></nav>
   </div>
 </header>
 <svg class="scallop" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H100V2 Q95 10 90 2 Q85 10 80 2 Q75 10 70 2 Q65 10 60 2 Q55 10 50 2 Q45 10 40 2 Q35 10 30 2 Q25 10 20 2 Q15 10 10 2 Q5 10 0 2Z" fill="currentColor"/></svg>
@@ -175,6 +192,28 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
     </form>
     <div class="filter" id="filter" role="group" aria-label="친구별 보기"></div>
     <ul class="feed" id="feed"></ul>
+  </div>
+</section>
+
+<section class="band survey" id="survey">
+  <div class="wrap">
+    <h2>어른 친구들을 위한 짧은 설문</h2>
+    <p class="lead2">눕 키링을 더 잘 만들기 위해 의견을 듣고 있어요. 30초면 끝나요.</p>
+    <form id="sform" autocomplete="off">
+      <input name="website" id="s_website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+      <div class="q"><b>1. 가장 마음에 드는 친구는?</b><div class="opts" data-q="fav" role="radiogroup" aria-label="마음에 드는 친구"></div></div>
+      <div class="q"><b>2. 이 키링, 얼마면 사고 싶나요?</b><div class="opts" data-q="price" role="radiogroup" aria-label="적정 가격"></div></div>
+      <div class="q"><b>3. 산다면 누구를 위해?</b><div class="opts" data-q="for_whom" role="radiogroup" aria-label="누구를 위해"></div></div>
+      <div class="q"><b>4. 나는</b><div class="opts" data-q="who_am" role="radiogroup" aria-label="응답자"></div>
+        <input id="s_major" maxlength="40" placeholder="전공이나 하는 일 (선택) 예: 유아교육과" aria-label="전공이나 직업"></div>
+      <label class="check"><input type="checkbox" id="s_kit"> 학교·기관용 환경교육 키트에도 관심 있어요</label>
+      <textarea id="s_comment" maxlength="300" placeholder="눕에게 하고 싶은 말 (선택)" aria-label="하고 싶은 말"></textarea>
+      <div class="row" style="align-items:center;justify-content:space-between">
+        <span class="note" id="s_status">응답은 이름 없이 저장돼요</span>
+        <button class="btn" id="s_send" type="submit">설문 보내기</button>
+      </div>
+      <div class="thanks" id="s_thanks">고마워요! 소중한 의견 잘 받았어요</div>
+    </form>
   </div>
 </section>
 
@@ -284,6 +323,31 @@ $("#form").addEventListener("submit",async e=>{
     else{$("#msg").value="";$("#ownPledge").value="";setWho($("#who").value);await load();setStatus("응원이 전해졌어요! 약속, 꼭 지켜 줘요")}
   }catch(_){setStatus("응원을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요")}
   busy=false;$("#send").disabled=false;
+});
+/* 성인 설문 */
+const SURVEY="{% url 'survey' %}";
+const SQ={fav:F.map(f=>[f.id,f.name]),price:[["u10","1만 원 미만"],["10-15","1만~1.5만 원"],["15-20","1.5만~2만 원"],["20+","2만 원 이상"]],
+  for_whom:[["me","나를 위해"],["kid","아이·조카에게"],["gift","친구·연인 선물"],["souvenir","제주 기념품"]],
+  who_am:[["student","대학생"],["worker","직장인"],["teacher","교사·교육자"],["etc","기타"]]};
+const ans={};
+document.querySelectorAll("#sform .opts").forEach(box=>{const q=box.dataset.q;
+  box.innerHTML=SQ[q].map(([v,l])=>`<button type="button" role="radio" aria-checked="false" data-v="${v}">${esc(l)}</button>`).join("");
+  box.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ans[q]=b.dataset.v;
+    box.querySelectorAll("button").forEach(x=>x.setAttribute("aria-checked",x===b))})});
+let sbusy=false;
+$("#sform").addEventListener("submit",async e=>{
+  e.preventDefault();if(sbusy)return;
+  const miss=["fav","price","for_whom","who_am"].filter(k=>!ans[k]);
+  if(miss.length){$("#s_status").textContent="1~4번을 모두 골라 주세요";return}
+  sbusy=true;$("#s_send").disabled=true;$("#s_status").textContent="보내는 중…";
+  try{
+    const r=await fetch(SURVEY,{method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":csrf()},
+      body:JSON.stringify({...ans,major:$("#s_major").value,kit_interest:$("#s_kit").checked,comment:$("#s_comment").value,website:$("#s_website").value})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){$("#s_status").textContent=d.error||"보내지 못했어요"}
+    else{$("#sform").querySelectorAll(".q,.check,textarea,.row").forEach(x=>x.style.display="none");$("#s_thanks").style.display="block"}
+  }catch(_){$("#s_status").textContent="보내지 못했어요. 잠시 뒤 다시 시도해 주세요"}
+  sbusy=false;$("#s_send").disabled=false;
 });
 }
 </script>
