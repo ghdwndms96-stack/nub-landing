@@ -68,6 +68,17 @@ h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
 .chip{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #231815;flex:none}
 .btn{background:var(--leather);color:#FAF3E8;border:0;border-radius:12px;padding:0 18px;min-height:44px;font:inherit;font-size:16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* mini game */
+.game .stage{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(#cfeff8,#AEE3F1);touch-action:none;user-select:none}
+.game canvas{display:block;width:100%;height:380px}
+.game .hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;font-family:Jua;font-size:18px;color:#231815;pointer-events:none}
+.game .over{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:rgba(250,243,232,.92);padding:20px}
+.game .over[hidden]{display:none}
+.game .over b{font-family:Jua;font-weight:400;font-size:26px;display:block;margin-bottom:6px}
+.game .over p{margin:0 0 14px}
+.game .over .row{justify-content:center}
+.game .help{font-size:14px;color:var(--soft);margin-top:10px}
 /* community */
 .comm{background:light-dark(#f3e6da,#251c19)}
 form.post{display:grid;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
@@ -138,7 +149,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       </g>
       <text x="150" y="278" text-anchor="middle" font-family="Jua" font-size="18" fill="#FAF3E8" opacity=".85">NUB · JEJU</text>
     </svg>
-    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#community">소통창</a><a href="#survey">어른 설문</a></nav>
+    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#game">게임</a><a href="#community">소통창</a><a href="#survey">어른 설문</a></nav>
   </div>
 </header>
 <svg class="scallop" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H100V2 Q95 10 90 2 Q85 10 80 2 Q75 10 70 2 Q65 10 60 2 Q55 10 50 2 Q45 10 40 2 Q35 10 30 2 Q25 10 20 2 Q15 10 10 2 Q5 10 0 2Z" fill="currentColor"/></svg>
@@ -166,6 +177,24 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       <div class="screen" id="screen"></div>
       <div class="meta"><span class="chip" id="chip"></span><div><h3 id="vName"></h3><div class="sp" id="vSp"></div></div></div>
     </div>
+  </div>
+</section>
+
+<section class="band game" id="game" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="gTitle">나눕오를 도와줘! 쓰레기 피하기</h2>
+    <div class="stage" id="gStage">
+      <canvas id="gCanvas" aria-label="쓰레기 피하기 게임"></canvas>
+      <div class="hud"><span id="gScore">점수 0</span><span id="gLives">♥♥♥</span></div>
+      <div class="over" id="gOver">
+        <div>
+          <b id="gMsgTitle">떨어지는 쓰레기를 피해요</b>
+          <p id="gMsg">하트를 모으면 점수가 더 올라가요</p>
+          <div class="row"><button class="btn" type="button" id="gStart">시작하기</button><a class="btn" href="#community" id="gCheer" hidden style="background:#231815">응원 남기러 가기</a></div>
+        </div>
+      </div>
+    </div>
+    <p class="help">손가락으로 화면을 좌우로 밀거나, 키보드 ← → 로 움직여요.</p>
   </div>
 </section>
 
@@ -269,6 +298,7 @@ function show(id,scroll){
   $("#heroTitle").textContent=`반가워요, ${f.name}${/[가-힣]$/.test(f.name)&&((f.name.charCodeAt(f.name.length-1)-44032)%28)?"이에요":"예요"}`;
   $("#vName").textContent=f.name;$("#vSp").textContent=f.sp;$("#chip").style.background=f.body;
   setWho(f.id);
+  if(window.__gameTitle)window.__gameTitle();
   const s=$("#screen");
   const yid=ytId(f.yt);
   if(yid) s.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${yid}?rel=0&playsinline=1" title="${esc(f.name)} 영상" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
@@ -282,6 +312,55 @@ function fromHash(){const h=location.hash.slice(1);if(F.some(f=>f.id===h))show(h
 show("nanubo");fromHash();
 addEventListener("hashchange",fromHash);
 
+
+/* 미니 게임: 쓰레기 피하기 */
+{
+const cv=$("#gCanvas"),ctx=cv.getContext("2d"),stage=$("#gStage");
+if(!ctx.roundRect)ctx.roundRect=function(x,y,w,h){this.rect(x,y,w,h)};
+const imgs={};F.forEach(f=>{const im=new Image();im.src=`${IMG}${f.id}.webp`;imgs[f.id]=im});
+let W=0,H=380,dpr=1,run=false,last=0,t=0,score=0,lives=3,items=[],px=0,tx=0,spawn=0,inv=0,keys={};
+let best=0;try{best=+localStorage.getItem("nub-best")||0}catch(_){}
+function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=stage.clientWidth;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!run){px=tx=W/2;draw()}}
+new ResizeObserver(size).observe(stage);
+const KINDS=["bottle","can","bag","net"];
+function add(){const heart=Math.random()<0.15;items.push({x:20+Math.random()*(W-40),y:-30,v:(110+Math.min(t,60)*4)*(0.8+Math.random()*0.5),k:heart?"heart":KINDS[Math.random()*4|0],r:heart?14:18,rot:Math.random()*6,spin:(Math.random()-.5)*3})}
+function shape(it){ctx.save();ctx.translate(it.x,it.y);ctx.rotate(it.rot);ctx.lineWidth=2;ctx.strokeStyle="#231815";
+ if(it.k==="bottle"){ctx.fillStyle="#d9f1fb";ctx.beginPath();ctx.roundRect(-8,-16,16,30,5);ctx.fill();ctx.stroke();ctx.fillStyle="#3E7CA8";ctx.fillRect(-4,-22,8,7);ctx.strokeRect(-4,-22,8,7)}
+ else if(it.k==="can"){ctx.fillStyle="#c9c9c9";ctx.beginPath();ctx.roundRect(-10,-14,20,28,4);ctx.fill();ctx.stroke();ctx.fillStyle="#d94b4b";ctx.fillRect(-10,-4,20,8)}
+ else if(it.k==="bag"){ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.moveTo(-14,-6);ctx.quadraticCurveTo(-16,16,0,16);ctx.quadraticCurveTo(16,16,14,-6);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(-6,-8,5,Math.PI,0);ctx.arc(6,-8,5,Math.PI,0);ctx.stroke()}
+ else if(it.k==="net"){ctx.strokeStyle="#6b5650";ctx.beginPath();for(let i=-15;i<=15;i+=7.5){ctx.moveTo(i,-15);ctx.lineTo(i,15);ctx.moveTo(-15,i);ctx.lineTo(15,i)}ctx.stroke()}
+ else{ctx.rotate(-it.rot);ctx.fillStyle="#F2B5B3";ctx.beginPath();ctx.moveTo(0,10);ctx.bezierCurveTo(-16,-2,-8,-16,0,-6);ctx.bezierCurveTo(8,-16,16,-2,0,10);ctx.fill();ctx.stroke()}
+ ctx.restore()}
+function draw(){ctx.clearRect(0,0,W,H);
+ ctx.fillStyle="rgba(255,255,255,.35)";for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse((i*W/3+t*20)%(W+80)-40,60+i*90,50,10,0,0,7);ctx.fill()}
+ items.forEach(shape);
+ const im=imgs[cur],s=64;ctx.fillStyle="rgba(35,24,21,.15)";ctx.beginPath();ctx.ellipse(px,H-8,26,6,0,0,7);ctx.fill();if(!(inv>0&&((t*10|0)%2))){if(im&&im.complete&&im.naturalWidth){const r=im.naturalWidth/im.naturalHeight;ctx.drawImage(im,px-s*r/2,H-s-8,s*r,s)}else{ctx.fillStyle=byId(cur).body;ctx.beginPath();ctx.arc(px,H-40,26,0,7);ctx.fill()}}}
+function hud(){$("#gScore").textContent=`점수 ${score|0}`;$("#gLives").textContent="♥".repeat(lives)+"♡".repeat(3-lives)}
+function loop(ts){if(!run)return;const dt=Math.min(.05,(ts-last)/1000||0);last=ts;t+=dt;score+=dt*10;
+ if(keys.ArrowLeft)tx-=360*dt;if(keys.ArrowRight)tx+=360*dt;tx=Math.max(24,Math.min(W-24,tx));px+=(tx-px)*Math.min(1,dt*14);
+ spawn-=dt;if(spawn<=0){add();spawn=Math.max(.28,.9-t*.012)}
+ inv=Math.max(0,inv-dt);
+ for(const it of items){it.y+=it.v*dt;it.rot+=it.spin*dt;
+  const dx=it.x-px,dy=it.y-(H-40);if(!it.hit&&dx*dx+dy*dy<(it.r+24)**2){it.hit=1;
+   if(it.k==="heart"){score+=50}else if(inv<=0){lives--;inv=1.2;if(navigator.vibrate)try{navigator.vibrate(80)}catch(_){}}}}
+ items=items.filter(it=>it.y<H+40&&!it.hit);
+ hud();draw();
+ if(lives<=0)return end();
+ requestAnimationFrame(loop)}
+function start(){items=[];t=0;score=0;lives=3;inv=0;spawn=.5;px=tx=W/2;run=true;$("#gOver").hidden=true;hud();last=performance.now();requestAnimationFrame(loop)}
+function end(){run=false;const f=byId(cur),sc=score|0;if(sc>best){best=sc;try{localStorage.setItem("nub-best",best)}catch(_){}}
+ $("#gMsgTitle").textContent=`${sc}점! (최고 ${best}점)`;
+ $("#gMsg").textContent=`바다와 숲에 쓰레기가 줄어들면 ${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"이":"가"} 더 안전해져요.`;
+ $("#gStart").textContent="다시 하기";$("#gCheer").hidden=false;$("#gOver").hidden=false}
+$("#gStart").addEventListener("click",start);
+function aim(e){const r=cv.getBoundingClientRect();tx=e.clientX-r.left}
+stage.addEventListener("pointerdown",e=>{if(run)aim(e)});stage.addEventListener("pointermove",e=>{if(run&&(e.buttons||e.pointerType!=="mouse"))aim(e)});
+cv.addEventListener("mousemove",e=>{if(run)aim(e)});
+addEventListener("keydown",e=>{if(run&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){keys[e.key]=1;e.preventDefault()}});
+addEventListener("keyup",e=>{keys[e.key]=0});
+window.__gameTitle=()=>{const f=byId(cur);$("#gTitle").textContent=`${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"을":"를"} 도와줘! 쓰레기 피하기`;if(!run)draw()};
+size();window.__gameTitle();
+}
 /* 소통창 */
 let posts=[],counts={},filter="all",busy=false;
 try{const n=localStorage.getItem("nub-nick");if(n)$("#nick").value=n}catch(_){}
