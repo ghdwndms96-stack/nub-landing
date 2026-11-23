@@ -120,6 +120,10 @@ select{flex:0 1 auto}
 .feedhead h3,.sendh{font-size:22px;margin:0}
 .sendh{margin:0 0 10px}
 .feedbox .filter{margin-top:10px}
+.pager{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.pager button{min-width:40px;min-height:40px;padding:0 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
+.pager button[aria-current=page]{background:var(--leather);border-color:var(--leather);color:#FAF3E8}
+.pager button[disabled]{opacity:.35;cursor:default}
 .more{width:100%;margin-top:10px;min-height:44px;border:1px dashed var(--line);border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
 .feed li{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:3px}
 .feed li .pl{font-size:13px;color:var(--soft)}
@@ -231,12 +235,6 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
     <h2>제주 친구들에게 응원 보내기</h2>
     <p>친구에 대해 하나 알아보고, 친구를 지키는 약속 하나와 응원 한마디를 남겨 주세요.</p>
     <div class="tally" id="tally"></div>
-    <div class="feedbox">
-      <div class="feedhead"><h3>최근 응원</h3><span class="note" id="feedCount"></span></div>
-      <div class="filter" id="filter" role="group" aria-label="친구별 보기"></div>
-      <ul class="feed" id="feed"></ul>
-      <button class="more" type="button" id="more" hidden>응원 더 보기</button>
-    </div>
     <h3 class="sendh">나도 응원 보내기</h3>
     <form class="post" style="position:relative" id="form" autocomplete="off">
       <label class="step"><span>1</span>누구에게 보낼까요?</label>
@@ -254,6 +252,12 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
         <button class="btn" id="send" type="submit" disabled>남기기</button>
       </div>
     </form>
+    <div class="feedbox">
+      <div class="feedhead"><h3>최근 응원</h3><span class="note" id="feedCount"></span></div>
+      <div class="filter" id="filter" role="group" aria-label="친구별 보기"></div>
+      <ul class="feed" id="feed"></ul>
+      <nav class="pager" id="pager" aria-label="응원 페이지"></nav>
+    </div>
   </div>
 </section>
 
@@ -407,10 +411,10 @@ size();window.__gameTitle();
 window.__gameStop=()=>{if(run)end()};
 }
 /* 소통창 */
-let posts=[],counts={},filter="all",busy=false,shown=5;
+let posts=[],counts={},filter="all",busy=false,page=1;const PER=5;
 try{const n=localStorage.getItem("nub-nick");if(n)$("#nick").value=n}catch(_){}
 $("#filter").innerHTML=`<button type="button" data-f="all" aria-pressed="true">전체</button>`+F.map(f=>`<button type="button" data-f="${f.id}" aria-pressed="false">${f.name}</button>`).join("");
-$("#filter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;filter=b.dataset.f;shown=5;document.querySelectorAll("#filter button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+$("#filter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;filter=b.dataset.f;page=1;document.querySelectorAll("#filter button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
 const ago=t=>{const m=Math.floor((Date.now()-t)/60000);if(m<1)return"방금";if(m<60)return m+"분 전";const h=Math.floor(m/60);if(h<24)return h+"시간 전";return Math.floor(h/24)+"일 전"};
 $("#who").addEventListener("change",e=>setWho(e.target.value));
 $("#pledges").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
@@ -418,14 +422,17 @@ $("#pledges").addEventListener("click",e=>{const b=e.target.closest("button");if
   document.querySelectorAll("#pledges button").forEach(x=>x.setAttribute("aria-checked","false"));
   b.setAttribute("aria-checked",on);pledge=on?b.dataset.p:"";if(on)$("#ownPledge").value=""});
 $("#ownPledge").addEventListener("input",e=>{if(e.target.value.trim()){pledge="";document.querySelectorAll("#pledges button").forEach(x=>x.setAttribute("aria-checked","false"))}});
-$("#more").addEventListener("click",()=>{shown+=5;render()});
+$("#pager").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled)return;page=+b.dataset.p;render();$("#feedCount").scrollIntoView({block:"nearest",behavior:"smooth"})});
 function render(){
   $("#tally").innerHTML=F.map(f=>`<div><span class="chip" style="background:${f.body}"></span>${esc(f.name)}에게<b>${counts[f.id]||0}</b></div>`).join("");
   const list=posts.filter(p=>filter==="all"||p.who===filter).sort((a,b)=>b.t-a.t);
   $("#feedCount").textContent=list.length?`모두 ${list.length}개 · 최신순`:"";
-  $("#more").hidden=list.length<=shown;
+  const pages=Math.max(1,Math.ceil(list.length/PER));if(page>pages)page=pages;
+  let lo=Math.max(1,page-2),hi=Math.min(pages,lo+4);lo=Math.max(1,hi-4);
+  const pb=(p,l,dis,cur)=>`<button type="button" data-p="${p}"${dis?" disabled":""}${cur?' aria-current="page"':""} aria-label="${l==="‹"?"이전":l==="›"?"다음":p+"쪽"}">${l}</button>`;
+  $("#pager").innerHTML=pages<2?"":pb(page-1,"‹",page===1)+Array.from({length:hi-lo+1},(_,k)=>pb(lo+k,lo+k,false,lo+k===page)).join("")+pb(page+1,"›",page===pages);
   if(!list.length){$("#feed").innerHTML=`<li class="empty-feed">아직 남겨진 응원이 없어요. 첫 응원을 보내 주세요.</li>`;return}
-  $("#feed").innerHTML=list.slice(0,shown).map(p=>{const f=byId(p.who);return`<li><div class="who"><span class="chip" style="background:${f.body}"></span><b>${esc(p.nick||"익명")}</b><span>→ ${esc(f.name)}에게 · ${ago(p.t)}</span></div><p>${esc(p.msg)}</p>${p.pledge?`<span class="pl">나의 약속 · ${esc(p.pledge)}</span>`:""}</li>`}).join("");
+  $("#feed").innerHTML=list.slice((page-1)*PER,page*PER).map(p=>{const f=byId(p.who);return`<li><div class="who"><span class="chip" style="background:${f.body}"></span><b>${esc(p.nick||"익명")}</b><span>→ ${esc(f.name)}에게 · ${ago(p.t)}</span></div><p>${esc(p.msg)}</p>${p.pledge?`<span class="pl">나의 약속 · ${esc(p.pledge)}</span>`:""}</li>`}).join("");
 }
 const setStatus=t=>$("#status").textContent=t;
 const csrf=()=>(document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)||[])[1]||"";
@@ -447,7 +454,7 @@ $("#form").addEventListener("submit",async e=>{
       body:JSON.stringify({nick,who:$("#who").value,pledge:pl,msg,website:$("#website").value})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok){setStatus(d.error||"응원을 보내지 못했어요")}
-    else{$("#msg").value="";$("#ownPledge").value="";setWho($("#who").value);await load();setStatus("응원이 전해졌어요! 약속, 꼭 지켜 줘요")}
+    else{$("#msg").value="";$("#ownPledge").value="";setWho($("#who").value);page=1;await load();setStatus("응원이 전해졌어요! 약속, 꼭 지켜 줘요")}
   }catch(_){setStatus("응원을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요")}
   busy=false;$("#send").disabled=false;
 });
