@@ -72,6 +72,7 @@ h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
 /* mini game */
 .game .stage{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(#cfeff8,#AEE3F1);touch-action:none;user-select:none}
 .game canvas{display:block;width:100%;height:380px}
+.game #gLives{display:inline-block;transition:transform .15s}
 .game .hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;font-family:Jua;font-size:18px;color:#231815;pointer-events:none}
 .game .over{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:rgba(250,243,232,.92);padding:20px}
 .game .over[hidden]{display:none}
@@ -189,7 +190,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       <div class="over" id="gOver">
         <div>
           <b id="gMsgTitle">떨어지는 쓰레기를 피해요</b>
-          <p id="gMsg">하트를 모으면 점수가 더 올라가요</p>
+          <p id="gMsg">하트를 먹으면 목숨이 하나 늘어나요 (최대 3개)</p>
           <div class="row"><button class="btn" type="button" id="gStart">시작하기</button><a class="btn" href="#community" id="gCheer" hidden style="background:#231815">응원 남기러 가기</a></div>
         </div>
       </div>
@@ -318,7 +319,7 @@ addEventListener("hashchange",fromHash);
 const cv=$("#gCanvas"),ctx=cv.getContext("2d"),stage=$("#gStage");
 if(!ctx.roundRect)ctx.roundRect=function(x,y,w,h){this.rect(x,y,w,h)};
 const imgs={};F.forEach(f=>{const im=new Image();im.src=`${IMG}${f.id}.webp`;imgs[f.id]=im});
-let W=0,H=380,dpr=1,run=false,last=0,t=0,score=0,lives=3,items=[],px=0,tx=0,spawn=0,inv=0,keys={};
+let flash=0,W=0,H=380,dpr=1,run=false,last=0,t=0,score=0,lives=3,items=[],px=0,tx=0,spawn=0,inv=0,keys={};
 let best=0;try{best=+localStorage.getItem("nub-best")||0}catch(_){}
 function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=stage.clientWidth;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!run){px=tx=W/2;draw()}}
 new ResizeObserver(size).observe(stage);
@@ -335,14 +336,14 @@ function draw(){ctx.clearRect(0,0,W,H);
  ctx.fillStyle="rgba(255,255,255,.35)";for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse((i*W/3+t*20)%(W+80)-40,60+i*90,50,10,0,0,7);ctx.fill()}
  items.forEach(shape);
  const im=imgs[cur],s=64;ctx.fillStyle="rgba(35,24,21,.15)";ctx.beginPath();ctx.ellipse(px,H-8,26,6,0,0,7);ctx.fill();if(!(inv>0&&((t*10|0)%2))){if(im&&im.complete&&im.naturalWidth){const r=im.naturalWidth/im.naturalHeight;ctx.drawImage(im,px-s*r/2,H-s-8,s*r,s)}else{ctx.fillStyle=byId(cur).body;ctx.beginPath();ctx.arc(px,H-40,26,0,7);ctx.fill()}}}
-function hud(){$("#gScore").textContent=`레벨 ${1+(t/15|0)} · 점수 ${score|0}`;$("#gLives").textContent="♥".repeat(lives)+"♡".repeat(3-lives)}
+function hud(){$("#gScore").textContent=`레벨 ${1+(t/15|0)} · 점수 ${score|0}`;const L=$("#gLives");L.textContent="♥".repeat(lives)+"♡".repeat(3-lives);L.style.transform=flash>0?"scale(1.35)":"";L.style.color=flash>0?"#d94b4b":""}
 function loop(ts){if(!run)return;const dt=Math.min(.05,(ts-last)/1000||0);last=ts;t+=dt;score+=dt*10;
  if(keys.ArrowLeft)tx-=420*dt;if(keys.ArrowRight)tx+=420*dt;tx=Math.max(24,Math.min(W-24,tx));px+=(tx-px)*Math.min(1,dt*14);
  spawn-=dt;if(spawn<=0){add();if(t>15&&Math.random()<Math.min(.5,t/80))add();spawn=Math.max(.16,.7-t*.014)}
- inv=Math.max(0,inv-dt);
+ inv=Math.max(0,inv-dt);flash=Math.max(0,flash-dt);
  for(const it of items){it.y+=it.v*dt;it.x+=it.vx*dt;if(it.x<15||it.x>W-15)it.vx*=-1;it.rot+=it.spin*dt;
   const dx=it.x-px,dy=it.y-(H-40);if(!it.hit&&dx*dx+dy*dy<(it.r+22)**2){it.hit=1;
-   if(it.k==="heart"){score+=50}else if(inv<=0){lives--;inv=.9;if(navigator.vibrate)try{navigator.vibrate(80)}catch(_){}}}}
+   if(it.k==="heart"){if(lives<3){lives++;flash=.6}else score+=50}else if(inv<=0){lives--;inv=.9;if(navigator.vibrate)try{navigator.vibrate(80)}catch(_){}}}}
  items=items.filter(it=>it.y<H+40&&!it.hit);
  hud();draw();
  if(lives<=0)return end();
