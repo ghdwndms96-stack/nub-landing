@@ -80,7 +80,10 @@ html{scroll-padding-top:64px}
 [data-panel]{min-height:60vh}
 /* mini game */
 .game .stage{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(#cfeff8,#AEE3F1);touch-action:none;user-select:none}
-.game canvas{display:block;width:100%;height:380px}
+.game canvas{display:block;width:100%;height:max(380px,calc(100vh - 230px));height:max(380px,calc(100svh - 230px));max-height:820px}
+.game{padding-top:16px!important;padding-bottom:16px!important}
+.game h2{margin-bottom:10px}
+.game .help{margin:8px 0 0}
 .game #gLives{display:inline-block;transition:transform .15s}
 .game .hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;font-family:Jua;font-size:18px;color:#231815;pointer-events:none}
 .game .over{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:rgba(250,243,232,.92);padding:20px}
@@ -347,8 +350,8 @@ if(!ctx.roundRect)ctx.roundRect=function(x,y,w,h){this.rect(x,y,w,h)};
 const imgs={};F.forEach(f=>{const im=new Image();im.src=`${IMG}${f.id}.webp`;imgs[f.id]=im});
 let flash=0,W=0,H=380,dpr=1,run=false,last=0,t=0,score=0,lives=3,items=[],px=0,tx=0,spawn=0,inv=0,keys={};
 let best=0;try{best=+localStorage.getItem("nub-best")||0}catch(_){}
-function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=stage.clientWidth;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!run){px=tx=W/2;draw()}}
-new ResizeObserver(size).observe(stage);
+function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=stage.clientWidth;H=cv.clientHeight||380;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!run){px=tx=W/2;draw()}}
+new ResizeObserver(size).observe(stage);new ResizeObserver(size).observe(cv);
 const KINDS=["bottle","can","bag","net"];
 function add(){const heart=Math.random()<0.12;const drift=t>12&&Math.random()<Math.min(.6,t/60);items.push({x:20+Math.random()*(W-40),y:-30,v:(150+Math.min(t,90)*6)*(0.8+Math.random()*0.5),vx:drift?(Math.random()-.5)*(80+t*2):0,k:heart?"heart":KINDS[Math.random()*4|0],r:heart?14:18,rot:Math.random()*6,spin:(Math.random()-.5)*3})}
 function shape(it){ctx.save();ctx.translate(it.x,it.y);ctx.rotate(it.rot);ctx.lineWidth=2;ctx.strokeStyle="#231815";
@@ -374,7 +377,8 @@ function loop(ts){if(!run)return;const dt=Math.min(.05,(ts-last)/1000||0);last=t
  hud();draw();
  if(lives<=0)return end();
  requestAnimationFrame(loop)}
-function start(){items=[];t=0;score=0;lives=3;inv=0;spawn=.5;px=tx=W/2;run=true;$("#gOver").hidden=true;hud();last=performance.now();requestAnimationFrame(loop)}
+function start(){try{stage.scrollIntoView({block:"center",behavior:"smooth"})}catch(_){}
+items=[];t=0;score=0;lives=3;inv=0;spawn=.5;px=tx=W/2;run=true;$("#gOver").hidden=true;hud();last=performance.now();requestAnimationFrame(loop)}
 function end(){run=false;const f=byId(cur),sc=score|0;if(sc>best){best=sc;try{localStorage.setItem("nub-best",best)}catch(_){}}
  $("#gMsgTitle").textContent=`${sc}점! (최고 ${best}점)`;
  $("#gMsg").textContent=`바다와 숲에 쓰레기가 줄어들면 ${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"이":"가"} 더 안전해져요.`;
