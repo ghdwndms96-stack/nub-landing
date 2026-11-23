@@ -25,8 +25,8 @@ class Post(models.Model):
 
 
 PRICES = [("u10", "1만 원 미만"), ("10-15", "1만~1.5만 원"), ("15-20", "1.5만~2만 원"), ("20+", "2만 원 이상")]
-FOR_WHOM = [("me", "나를 위해"), ("kid", "아이·조카에게"), ("gift", "친구·연인 선물"), ("souvenir", "제주 기념품")]
-WHO_AM = [("student", "대학생"), ("worker", "직장인"), ("teacher", "교사·교육자"), ("etc", "기타")]
+FOR_WHOM = [("me", "나에게"), ("kid", "가족에게"), ("gift", "친구에게"), ("souvenir", "제주 기념품으로")]
+WHO_AM = [("child", "어린이"), ("teen", "청소년"), ("student", "대학생"), ("worker", "어른(직장인)"), ("teacher", "선생님"), ("etc", "기타")]
 
 
 class Survey(models.Model):
@@ -34,7 +34,10 @@ class Survey(models.Model):
     price = models.CharField("적정 가격", max_length=10, choices=PRICES)
     for_whom = models.CharField("누구를 위해", max_length=10, choices=FOR_WHOM)
     who_am = models.CharField("응답자", max_length=10, choices=WHO_AM)
-    major = models.CharField("전공·직업", max_length=40, blank=True)
+    major = models.CharField("학교·하는 일", max_length=40, blank=True)
+    name = models.CharField("이름", max_length=20, blank=True)
+    dong = models.CharField("사는 동", max_length=20, blank=True)
+    agree = models.BooleanField("개인정보 동의", default=False)
     kit_interest = models.BooleanField("교육키트 관심", default=False)
     comment = models.CharField("한마디", max_length=300, blank=True)
     created = models.DateTimeField("응답 시각", auto_now_add=True)

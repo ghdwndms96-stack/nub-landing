@@ -68,7 +68,15 @@ def survey(request):
     if cache.get(key):
         return JsonResponse({"error": "이미 응답해 주셨어요. 잠시 뒤 다시 시도해 주세요"}, status=429)
     cache.set(key, 1, WAIT_SECONDS)
+    name = str(d.get("name", "")).strip()[:20]
+    dong = str(d.get("dong", "")).strip()[:20]
+    agree = bool(d.get("agree"))
+    if (name or dong) and not agree:
+        return JsonResponse({"error": "이름이나 동네를 적었다면 동의에 체크해 주세요"}, status=400)
+    if not agree:
+        name = dong = ""
     Survey.objects.create(fav=d["fav"], price=d["price"], for_whom=d["for_whom"], who_am=d["who_am"],
+                          name=name, dong=dong, agree=agree,
                           major=str(d.get("major", "")).strip()[:40],
                           kit_interest=bool(d.get("kit_interest")),
                           comment=str(d.get("comment", "")).strip()[:300])

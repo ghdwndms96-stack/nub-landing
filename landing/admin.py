@@ -38,10 +38,10 @@ def export_survey_csv(modeladmin, request, queryset):
     resp["Content-Disposition"] = f'attachment; filename="nub-survey-{now}.csv"'
     resp.write("\ufeff")
     w = csv.writer(resp)
-    w.writerow(["번호", "날짜", "시간", "응답자", "전공·직업", "마음에 드는 친구", "적정 가격", "누구를 위해", "교육키트 관심", "한마디"])
+    w.writerow(["번호", "날짜", "시간", "이름", "사는 동", "응답자", "학교·하는 일", "마음에 드는 친구", "적정 가격", "누구를 위해", "교육키트 관심", "한마디"])
     for s in queryset.order_by("created"):
         t = timezone.localtime(s.created)
-        w.writerow([s.id, t.strftime("%Y-%m-%d"), t.strftime("%H:%M:%S"), s.get_who_am_display(), s.major,
+        w.writerow([s.id, t.strftime("%Y-%m-%d"), t.strftime("%H:%M:%S"), s.name, s.dong, s.get_who_am_display(), s.major,
                     s.get_fav_display(), s.get_price_display(), s.get_for_whom_display(),
                     "예" if s.kit_interest else "", s.comment])
     return resp
@@ -49,8 +49,8 @@ def export_survey_csv(modeladmin, request, queryset):
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ("created", "who_am", "major", "fav", "price", "for_whom", "kit_interest", "comment")
-    list_filter = ("who_am", "fav", "price", "for_whom", "kit_interest", "created")
+    list_display = ("created", "name", "dong", "who_am", "major", "fav", "price", "for_whom", "kit_interest", "comment")
+    list_filter = ("who_am", "dong", "fav", "price", "for_whom", "kit_interest", "created")
     date_hierarchy = "created"
     actions = [export_survey_csv]
     list_per_page = 100

@@ -146,7 +146,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   <div class="wrap">
     <div class="brand">NUB 눕 · Nature · Union · Better</div>
     <h1 id="heroTitle">반가워요, 나눕오예요</h1>
-    <p id="heroSub">방금 태그한 키링은 제주 감귤 껍질과 선인장 부산물로 만든 비건가죽이에요.</p>
+    <p id="heroSub">방금 태그한 키링은 버려지는 제주 부산물로 만든 비건가죽이에요.</p>
     <svg class="tag" viewBox="0 0 300 330" role="img" aria-label="비건가죽 키링 태그">
       <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d49393"/><stop offset="1" stop-color="#a86466"/></linearGradient></defs>
       <circle cx="150" cy="24" r="20" fill="none" stroke="#e8d3b8" stroke-width="7"/>
@@ -174,7 +174,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   <div class="wrap">
     <img class="group" src="{% static 'landing/img/group.webp' %}" alt="나눕오와 제주 프렌즈 여섯 친구" width="900" height="633">
     <h2>눕은 이렇게 시작됐어요</h2>
-    <p class="lead">아이들과 환경교육을 하던 교실에서, 환경을 가르치는 교구가 한 학기만 쓰고 버려지는 모습을 봤어요. 오래 쓰고 정이 드는 소재를 찾다가 제주 밭과 과수원에서 해마다 버려지는 감귤 껍질과 선인장을 만났고, 그렇게 눕이 생겼어요.</p>
+    <p class="lead">아이들과 환경교육을 하던 교실에서, 환경을 가르치는 교구가 한 학기만 쓰고 버려지는 모습을 봤어요. 오래 쓰고 정이 드는 소재를 찾다가 제주에서 해마다 버려지는 부산물을 만났고, 그렇게 눕이 생겼어요.</p>
     <div class="motto">버려지는 것으로 사라지는 것을 배운다</div>
     <p>느릿느릿 나무늘보 <b>나눕오</b>와 제주 프렌즈 <b>핀·구르방·세오·비비·몽이</b>가 조용히 줄어들고 있는 제주 토종 생물들의 이야기를 대신 전해요. 손에 쥔 가죽의 촉감과 화면 속 친구들이 하나로 이어지는 경험, 그게 눕이 만들고 싶은 배움이에요.</p>
     <div class="vals">
@@ -242,19 +242,22 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
 
 <section class="band survey" id="survey" role="tabpanel" data-panel>
   <div class="wrap">
-    <h2>어른 친구들을 위한 짧은 설문</h2>
-    <p class="lead2">눕 키링을 더 잘 만들기 위해 의견을 듣고 있어요. 30초면 끝나요.</p>
+    <h2>눕 친구들에게 알려 주세요</h2>
+    <p class="lead2">어린이도 어른도 누구나 할 수 있어요. 30초면 끝나요!</p>
     <form id="sform" autocomplete="off">
       <input name="website" id="s_website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
       <div class="q"><b>1. 가장 마음에 드는 친구는?</b><div class="opts" data-q="fav" role="radiogroup" aria-label="마음에 드는 친구"></div></div>
-      <div class="q"><b>2. 이 키링, 얼마면 사고 싶나요?</b><div class="opts" data-q="price" role="radiogroup" aria-label="적정 가격"></div></div>
-      <div class="q"><b>3. 산다면 누구를 위해?</b><div class="opts" data-q="for_whom" role="radiogroup" aria-label="누구를 위해"></div></div>
-      <div class="q"><b>4. 나는</b><div class="opts" data-q="who_am" role="radiogroup" aria-label="응답자"></div>
-        <input id="s_major" maxlength="40" placeholder="전공이나 하는 일 (선택) 예: 유아교육과" aria-label="전공이나 직업"></div>
+      <div class="q"><b>2. 이 키링, 얼마면 좋을까요?</b><div class="opts" data-q="price" role="radiogroup" aria-label="적정 가격"></div></div>
+      <div class="q"><b>3. 누구에게 주고 싶어요?</b><div class="opts" data-q="for_whom" role="radiogroup" aria-label="누구를 위해"></div></div>
+      <div class="q"><b>4. 나는 누구예요?</b><div class="opts" data-q="who_am" role="radiogroup" aria-label="응답자"></div>
+        <input id="s_major" maxlength="40" placeholder="학교·학년이나 하는 일 (선택) 예: 3학년, 유아교육과" aria-label="학교나 하는 일"></div>
+      <div class="q"><b>5. 이름과 사는 동네 (선택)</b>
+        <div class="row"><input id="s_name" maxlength="20" placeholder="이름 또는 별명" aria-label="이름 또는 별명" style="flex:1 1 140px"><input id="s_dong" maxlength="20" placeholder="사는 동 예: 노형동" aria-label="사는 동" style="flex:1 1 140px"></div>
+        <label class="check" id="s_agreeRow"><input type="checkbox" id="s_agree"> 이름과 동네를 눕이 설문 정리에만 쓰는 것에 동의해요 <span style="opacity:.75">(만 14세 미만은 보호자와 함께 체크해 주세요)</span></label></div>
       <label class="check"><input type="checkbox" id="s_kit"> 학교·기관용 환경교육 키트에도 관심 있어요</label>
       <textarea id="s_comment" maxlength="300" placeholder="눕에게 하고 싶은 말 (선택)" aria-label="하고 싶은 말"></textarea>
       <div class="row" style="align-items:center;justify-content:space-between">
-        <span class="note" id="s_status">응답은 이름 없이 저장돼요</span>
+        <span class="note" id="s_status">이름과 동네는 안 써도 괜찮아요</span>
         <button class="btn" id="s_send" type="submit">설문 보내기</button>
       </div>
       <div class="thanks" id="s_thanks">고마워요! 소중한 의견 잘 받았어요</div>
@@ -431,8 +434,8 @@ $("#form").addEventListener("submit",async e=>{
 /* 성인 설문 */
 const SURVEY="{% url 'survey' %}";
 const SQ={fav:F.map(f=>[f.id,f.name]),price:[["u10","1만 원 미만"],["10-15","1만~1.5만 원"],["15-20","1.5만~2만 원"],["20+","2만 원 이상"]],
-  for_whom:[["me","나를 위해"],["kid","아이·조카에게"],["gift","친구·연인 선물"],["souvenir","제주 기념품"]],
-  who_am:[["student","대학생"],["worker","직장인"],["teacher","교사·교육자"],["etc","기타"]]};
+  for_whom:[["me","나에게"],["kid","가족에게"],["gift","친구에게"],["souvenir","제주 기념품으로"]],
+  who_am:[["child","어린이"],["teen","청소년"],["student","대학생"],["worker","어른(직장인)"],["teacher","선생님"],["etc","기타"]]};
 const ans={};
 document.querySelectorAll("#sform .opts").forEach(box=>{const q=box.dataset.q;
   box.innerHTML=SQ[q].map(([v,l])=>`<button type="button" role="radio" aria-checked="false" data-v="${v}">${esc(l)}</button>`).join("");
@@ -443,13 +446,15 @@ $("#sform").addEventListener("submit",async e=>{
   e.preventDefault();if(sbusy)return;
   const miss=["fav","price","for_whom","who_am"].filter(k=>!ans[k]);
   if(miss.length){$("#s_status").textContent="1~4번을 모두 골라 주세요";return}
+  const nm=$("#s_name").value.trim(),dg=$("#s_dong").value.trim();
+  if((nm||dg)&&!$("#s_agree").checked){$("#s_status").textContent="이름이나 동네를 적었다면 동의에 체크해 주세요";return}
   sbusy=true;$("#s_send").disabled=true;$("#s_status").textContent="보내는 중…";
   try{
     const r=await fetch(SURVEY,{method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":csrf()},
-      body:JSON.stringify({...ans,major:$("#s_major").value,kit_interest:$("#s_kit").checked,comment:$("#s_comment").value,website:$("#s_website").value})});
+      body:JSON.stringify({...ans,major:$("#s_major").value,name:nm,dong:dg,agree:$("#s_agree").checked,kit_interest:$("#s_kit").checked,comment:$("#s_comment").value,website:$("#s_website").value})});
     const d=await r.json().catch(()=>({}));
     if(!r.ok){$("#s_status").textContent=d.error||"보내지 못했어요"}
-    else{$("#sform").querySelectorAll(".q,.check,textarea,.row").forEach(x=>x.style.display="none");$("#s_thanks").style.display="block"}
+    else{$("#sform").querySelectorAll(".q,.check,textarea,.row,#sform>.check").forEach(x=>x.style.display="none");$("#s_thanks").style.display="block"}
   }catch(_){$("#s_status").textContent="보내지 못했어요. 잠시 뒤 다시 시도해 주세요"}
   sbusy=false;$("#s_send").disabled=false;
 });
