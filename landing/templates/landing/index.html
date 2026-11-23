@@ -69,6 +69,15 @@ h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
 .btn{background:var(--leather);color:#FAF3E8;border:0;border-radius:12px;padding:0 18px;min-height:44px;font:inherit;font-size:16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 
+
+/* tabs */
+html{scroll-padding-top:64px}
+.tag{width:min(220px,58vw)!important}
+.tabs{position:sticky;top:0;z-index:10;display:flex;gap:4px;padding:8px max(4vw,10px);background:var(--bg);border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{flex:1 0 auto;min-height:44px;padding:0 12px;border:0;border-radius:12px;background:transparent;color:var(--ink);font-family:Jua,sans-serif;font-size:17px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--leather);color:#FAF3E8}
+[data-panel][hidden]{display:none}
+[data-panel]{min-height:60vh}
 /* mini game */
 .game .stage{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(#cfeff8,#AEE3F1);touch-action:none;user-select:none}
 .game canvas{display:block;width:100%;height:380px}
@@ -150,12 +159,18 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       </g>
       <text x="150" y="278" text-anchor="middle" font-family="Jua" font-size="18" fill="#FAF3E8" opacity=".85">NUB · JEJU</text>
     </svg>
-    <nav class="jump" aria-label="바로가기"><a href="#about">소개</a><a href="#video">영상</a><a href="#game">게임</a><a href="#community">소통창</a><a href="#survey">어른 설문</a></nav>
   </div>
 </header>
 <svg class="scallop" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H100V2 Q95 10 90 2 Q85 10 80 2 Q75 10 70 2 Q65 10 60 2 Q55 10 50 2 Q45 10 40 2 Q35 10 30 2 Q25 10 20 2 Q15 10 10 2 Q5 10 0 2Z" fill="currentColor"/></svg>
+<nav class="tabs" id="tabs" role="tablist" aria-label="메뉴">
+  <button type="button" role="tab" data-tab="about">소개</button>
+  <button type="button" role="tab" data-tab="video">영상</button>
+  <button type="button" role="tab" data-tab="game">게임</button>
+  <button type="button" role="tab" data-tab="community">응원</button>
+  <button type="button" role="tab" data-tab="survey">설문</button>
+</nav>
 
-<section class="band" id="about">
+<section class="band" id="about" role="tabpanel" data-panel>
   <div class="wrap">
     <img class="group" src="{% static 'landing/img/group.webp' %}" alt="나눕오와 제주 프렌즈 여섯 친구" width="900" height="633">
     <h2>눕은 이렇게 시작됐어요</h2>
@@ -170,7 +185,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   </div>
 </section>
 
-<section class="band" id="video" style="padding-top:0">
+<section class="band" id="video" role="tabpanel" data-panel>
   <div class="wrap">
     <h2>친구를 만나 볼까요</h2>
     <div class="friends" id="friends" role="group" aria-label="캐릭터 선택"></div>
@@ -181,7 +196,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   </div>
 </section>
 
-<section class="band game" id="game" style="padding-top:0">
+<section class="band game" id="game" role="tabpanel" data-panel>
   <div class="wrap">
     <h2 id="gTitle">나눕오를 도와줘! 쓰레기 피하기</h2>
     <div class="stage" id="gStage">
@@ -199,7 +214,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   </div>
 </section>
 
-<section class="band comm" id="community">
+<section class="band comm" id="community" role="tabpanel" data-panel>
   <div class="wrap">
     <h2>제주 친구들에게 응원 보내기</h2>
     <p>친구에 대해 하나 알아보고, 친구를 지키는 약속 하나와 응원 한마디를 남겨 주세요.</p>
@@ -225,7 +240,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   </div>
 </section>
 
-<section class="band survey" id="survey">
+<section class="band survey" id="survey" role="tabpanel" data-panel>
   <div class="wrap">
     <h2>어른 친구들을 위한 짧은 설문</h2>
     <p class="lead2">눕 키링을 더 잘 만들기 위해 의견을 듣고 있어요. 30초면 끝나요.</p>
@@ -309,7 +324,15 @@ function show(id,scroll){
   if(scroll) $("#video").scrollIntoView({behavior:"smooth"});
 }
 $("#friends").addEventListener("click",e=>{const b=e.target.closest(".friend");if(b){show(b.dataset.id);try{location.hash=b.dataset.id}catch(_){}}});
-function fromHash(){const h=location.hash.slice(1);if(F.some(f=>f.id===h))show(h);}
+const TABS=["about","video","game","community","survey"];let curTab="";
+function tab(n,scroll){if(!TABS.includes(n))n="about";if(curTab==="game"&&n!=="game"&&window.__gameStop)window.__gameStop();curTab=n;
+  document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.id!==n);
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===n));
+  if(scroll){const y=$("#tabs").offsetTop;if(scrollY>y||scroll==="force")scrollTo({top:y,behavior:"smooth"})}}
+function fromHash(){const h=decodeURIComponent(location.hash.slice(1));
+  if(F.some(f=>f.id===h)){show(h);tab("video")}else if(TABS.includes(h)){tab(h,"force")}else if(!curTab)tab("about")}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(location.hash==="#"+b.dataset.tab)tab(b.dataset.tab,true);else{try{history.replaceState(null,"","#"+b.dataset.tab)}catch(_){}tab(b.dataset.tab,true)}});
 show("nanubo");fromHash();
 addEventListener("hashchange",fromHash);
 
@@ -361,6 +384,7 @@ addEventListener("keydown",e=>{if(run&&(e.key==="ArrowLeft"||e.key==="ArrowRight
 addEventListener("keyup",e=>{keys[e.key]=0});
 window.__gameTitle=()=>{const f=byId(cur);$("#gTitle").textContent=`${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"을":"를"} 도와줘! 쓰레기 피하기`;if(!run)draw()};
 size();window.__gameTitle();
+window.__gameStop=()=>{if(run)end()};
 }
 /* 소통창 */
 let posts=[],counts={},filter="all",busy=false;
