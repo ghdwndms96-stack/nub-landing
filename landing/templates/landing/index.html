@@ -79,7 +79,7 @@ h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
 .qbar span{display:block;height:100%;width:0;background:var(--leather);transition:width .25s}
 .qnum{font-size:14px;color:var(--soft);margin-top:12px}
 .qq{font-size:24px;margin:6px 0 16px}
-.qpic{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:14px;margin:10px 0 4px;background:var(--line)}
+.qpic{display:block;width:100%;height:auto;max-height:300px;object-fit:contain;border-radius:14px;margin:10px 0 4px;background:var(--line)}
 .qopts{display:grid;gap:10px}
 .qopts button{text-align:left;min-height:54px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;cursor:pointer}
 .qopts button:active{background:var(--leather);color:#FAF3E8}
@@ -466,7 +466,7 @@ window.__gameStop=()=>{if(run)end()};
 
 /* 심리테스트: 나와 닮은 눕버디즈 */
 {
-const QPIC={0:"q1.webp"};
+const QPIC={0:"q1.webp",1:"q2.webp"};
 const QS=[
  ["쉬는 날, 나는 주로…",[["느긋하게 뒹굴며 낮잠 자기","nanubo"],["친구들이랑 신나게 뛰어놀기","pin"],["혼자 그림 그리거나 음악 듣기","seo"],["궁금했던 걸 찾아보기","bibi"]]],
  ["친구가 슬퍼 보이면?",[["이야기를 끝까지 들어 줘요","gurbang"],["웃긴 이야기로 웃게 해 줘요","pin"],["도와줄 방법을 찾아 바로 움직여요","mong"],["말없이 곁에 있어 줘요","nanubo"]]],
