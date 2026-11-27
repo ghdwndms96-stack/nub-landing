@@ -70,6 +70,25 @@ h2{font-size:clamp(26px,5.5vw,34px);margin-bottom:14px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 
 
+
+/* personality test */
+.qbox [hidden]{display:none!important}
+.qbox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;min-height:380px}
+.qcenter{text-align:center;display:grid;gap:10px;justify-items:center}
+.qbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.qbar span{display:block;height:100%;width:0;background:var(--leather);transition:width .25s}
+.qnum{font-size:14px;color:var(--soft);margin-top:12px}
+.qq{font-size:24px;margin:6px 0 16px}
+.qopts{display:grid;gap:10px}
+.qopts button{text-align:left;min-height:54px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;cursor:pointer}
+.qopts button:active{background:var(--leather);color:#FAF3E8}
+.qnote{font-size:15px;color:var(--soft)}
+.qimg{width:150px;height:150px;border-radius:50%;display:grid;place-items:center}
+.qimg img{width:118px;height:118px;object-fit:contain}
+.qname{font-size:34px;margin:0}
+.qsp{font-weight:700}
+.qdesc{margin:4px 0;max-width:30em}
+.qquote{background:var(--bg);border-radius:12px;padding:10px 14px;margin-bottom:6px}
 /* tabs */
 html{scroll-padding-top:64px}
 .tag{width:min(220px,58vw)!important}
@@ -181,6 +200,7 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
   <button type="button" role="tab" data-tab="about">소개</button>
   <button type="button" role="tab" data-tab="video">영상</button>
   <button type="button" role="tab" data-tab="game">게임</button>
+  <button type="button" role="tab" data-tab="test">테스트</button>
   <button type="button" role="tab" data-tab="community">응원</button>
   <button type="button" role="tab" data-tab="survey">설문</button>
 </nav>
@@ -227,6 +247,37 @@ footer b{font-family:Jua;font-weight:400;font-size:20px;color:#FAF3E8;display:bl
       </div>
     </div>
     <p class="help">아래 파란 칸이나 게임 화면을 좌우로 밀어요. 컴퓨터는 키보드 ← → 로 움직여요.</p>
+  </div>
+</section>
+
+<section class="band quiz" id="test" role="tabpanel" data-panel>
+  <div class="wrap">
+    <h2>나와 닮은 눕버디즈는?</h2>
+    <div class="qbox" id="qbox">
+      <div id="qStart" class="qcenter">
+        <p>7개 질문에 답하면 나와 가장 닮은 제주 친구를 알려 줘요.</p>
+        <button class="btn" type="button" id="qGo">테스트 시작</button>
+      </div>
+      <div id="qAsk" hidden>
+        <div class="qbar"><span id="qBarFill"></span></div>
+        <div class="qnum" id="qNum"></div>
+        <h3 class="qq" id="qQ"></h3>
+        <div class="qopts" id="qOpts"></div>
+      </div>
+      <div id="qRes" hidden class="qcenter">
+        <div class="qnote">나와 닮은 눕버디즈는</div>
+        <div class="qimg" id="qImg"></div>
+        <h3 class="qname" id="qName"></h3>
+        <div class="qsp" id="qSp"></div>
+        <p class="qdesc" id="qDesc"></p>
+        <div class="qquote" id="qQuote"></div>
+        <div class="row" style="justify-content:center">
+          <button class="btn" type="button" id="qVideo"></button>
+          <button class="btn" type="button" id="qCheer" style="background:#231815">응원 보내기</button>
+        </div>
+        <button class="more" type="button" id="qAgain">다시 해 보기</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -348,7 +399,7 @@ function show(id,scroll){
   if(scroll) $("#video").scrollIntoView({behavior:"smooth"});
 }
 $("#friends").addEventListener("click",e=>{const b=e.target.closest(".friend");if(b){show(b.dataset.id);try{location.hash=b.dataset.id}catch(_){}}});
-const TABS=["about","video","game","community","survey"];let curTab="";
+const TABS=["about","video","game","test","community","survey"];let curTab="";
 function tab(n,scroll){if(!TABS.includes(n))n="about";if(curTab==="game"&&n!=="game"&&window.__gameStop)window.__gameStop();curTab=n;
   document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.id!==n);
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===n));
@@ -409,6 +460,43 @@ addEventListener("keyup",e=>{keys[e.key]=0});
 window.__gameTitle=()=>{const f=byId(cur);$("#gTitle").textContent=`${f.name}${(f.name.charCodeAt(f.name.length-1)-44032)%28?"을":"를"} 도와줘! 쓰레기 피하기`;if(!run)draw()};
 size();window.__gameTitle();
 window.__gameStop=()=>{if(run)end()};
+}
+
+/* 심리테스트: 나와 닮은 눕버디즈 */
+{
+const QS=[
+ ["쉬는 날, 나는 주로…",[["느긋하게 뒹굴며 낮잠 자기","nanubo"],["친구들이랑 신나게 뛰어놀기","pin"],["혼자 그림 그리거나 음악 듣기","seo"],["궁금했던 걸 찾아보기","bibi"]]],
+ ["친구가 슬퍼 보이면?",[["이야기를 끝까지 들어 줘요","gurbang"],["웃긴 이야기로 웃게 해 줘요","pin"],["도와줄 방법을 찾아 바로 움직여요","mong"],["말없이 곁에 있어 줘요","nanubo"]]],
+ ["처음 가 보는 곳에 가면?",[["앞장서서 길을 찾아요","mong"],["하나하나 자세히 살펴봐요","bibi"],["천천히 걸으며 풍경을 즐겨요","nanubo"],["나만의 조용한 자리를 찾아요","seo"]]],
+ ["모둠 활동에서 나는…",[["분위기를 띄우는 분위기 메이커","pin"],["모두를 챙기는 든든한 맏이","gurbang"],["새로운 아이디어를 내는 사람","bibi"],["일단 직접 해 보는 사람","mong"]]],
+ ["가장 듣고 싶은 말은?",[["“너 정말 멋지다!”","pin"],["“네 덕분에 든든해”","mong"],["“네 이야기 더 듣고 싶어”","gurbang"],["“있는 그대로의 네가 좋아”","seo"]]],
+ ["가장 끌리는 장소는?",[["바람 부는 넓은 초원","mong"],["파도 소리 들리는 조용한 해변","gurbang"],["멀리 바다가 보이는 바위섬","seo"],["풀숲 속 나만 아는 비밀 장소","bibi"]]],
+ ["고민이 생기면 나는…",[["일단 쉬고 천천히 생각해요","nanubo"],["혼자서 해결해 보려고 해요","seo"],["경험 많은 사람에게 물어봐요","gurbang"],["원인을 하나씩 따져 봐요","bibi"]]],
+];
+const RES={
+ nanubo:["INFP","느긋하고 다정한 관찰자예요. 남들이 지나치는 작은 존재를 먼저 알아보는 따뜻한 눈을 가졌어요.","…음, 저 친구 조금 외로워 보이지 않아?"],
+ pin:["ENFP","밝고 장난기 많은 분위기 메이커예요. 어디서든 먼저 다가가 친구를 만드는 힘이 있어요.","우와! 저거 봤어? 내가 먼저 가 볼게!"],
+ gurbang:["ISFJ","온화하고 지혜로운 든든한 어른이에요. 친구의 이야기를 끝까지 들어 주는 마음이 큰 힘이 돼요.","허허, 옛날에는 말이지… 이런 일도 있었단다."],
+ bibi:["INTP","수줍지만 궁금한 게 가득한 탐험가예요. 작은 것도 그냥 지나치지 않고 깊이 생각해요.","…저기, 근데 그거 조금 이상하지 않아?"],
+ seo:["ISFP","도도하고 독립적인 감성파예요. 혼자서도 잘하지만, 사실은 친구와 함께하는 시간도 소중하게 여겨요.","흥, 난 혼자서도 괜찮거든. …근데 너희 어디 가?"],
+ mong:["ESTP","씩씩하고 든든한 행동파예요. 걱정보다 행동이 먼저라 친구들이 믿고 따라와요.","걱정 마! 내가 해 볼게. 나만 믿고 따라와!"],
+};
+let qi=0,score={};
+const show3=(a,b,c)=>{$("#qStart").hidden=!a;$("#qAsk").hidden=!b;$("#qRes").hidden=!c};
+function ask(){const [q,opts]=QS[qi];$("#qNum").textContent=`${qi+1} / ${QS.length}`;$("#qQ").textContent=q;
+ $("#qBarFill").style.width=`${qi/QS.length*100}%`;
+ const sh=opts.map(o=>o).sort(()=>Math.random()-.5);
+ $("#qOpts").innerHTML=sh.map(([l,c])=>`<button type="button" data-c="${c}">${esc(l)}</button>`).join("")}
+function result(){const max=Math.max(...Object.values(score));const top=Object.keys(score).filter(k=>score[k]===max);
+ const id=top[Math.random()*top.length|0],f=byId(id),r=RES[id];
+ $("#qImg").style.background=f.body;$("#qImg").innerHTML=`<img src="${IMG}${id}.webp" alt="${esc(f.name)}">`;
+ $("#qName").textContent=f.name;$("#qSp").textContent=`${f.sp} · ${r[0]}`;$("#qDesc").textContent=r[1];$("#qQuote").textContent=`“${r[2]}”`;
+ $("#qVideo").textContent=`${f.name} 영상 보기`;$("#qVideo").dataset.id=id;$("#qCheer").dataset.id=id;show3(0,0,1)}
+$("#qGo").addEventListener("click",()=>{qi=0;score={};F.forEach(f=>score[f.id]=0);show3(0,1,0);ask()});
+$("#qAgain").addEventListener("click",()=>{qi=0;score={};F.forEach(f=>score[f.id]=0);show3(0,1,0);ask()});
+$("#qOpts").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;score[b.dataset.c]++;qi++;if(qi<QS.length)ask();else result()});
+$("#qVideo").addEventListener("click",e=>{location.hash=e.target.dataset.id});
+$("#qCheer").addEventListener("click",e=>{show(e.target.dataset.id);try{history.replaceState(null,"","#community")}catch(_){}tab("community","force")});
 }
 /* 소통창 */
 let posts=[],counts={},filter="all",busy=false,page=1;const PER=5;
